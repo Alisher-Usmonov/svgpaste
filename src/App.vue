@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
+import { Codemirror } from "vue-codemirror";
+import { html } from "@codemirror/lang-html";
+import { oneDark } from "@codemirror/theme-one-dark";
+import { useDebounceFn } from "@vueuse/core";
+
+const extensions = [html(), oneDark];
 
 const colors = [
   "rgb(250, 250, 250)",
@@ -7,19 +13,22 @@ const colors = [
   "rgb(59, 130, 246)",
   "rgb(239, 68, 68)",
   "rgb(34, 197, 94)",
-  "rgb(249, 115, 22)",
   "rgb(99, 102, 241)",
   "rgb(234, 179, 8)",
 ];
 
-const svg = ref("");
-const color = ref(colors[0]);
+const svg = ref(localStorage.getItem("code") || "");
+const color = ref(localStorage.getItem("color") || colors[0]);
 
-// const borderColor = computed(() => {
-//   const colors = color.value.slice(color.value.indexOf("(") + 1, -1);
+const handleChange = useDebounceFn(() => {
+  localStorage.setItem("code", svg.value);
+}, 2000);
 
-//   return `rgba(${colors}, 0.1)`;
-// });
+const colorChange = useDebounceFn(() => {
+  localStorage.setItem("color", color.value);
+}, 2000);
+
+watch(color, colorChange);
 </script>
 
 <template>
@@ -27,11 +36,17 @@ const color = ref(colors[0]);
     class="p-2 h-screen grid grid-cols-1 grid-rows-2 md:grid-rows-1 md:grid-cols-2 gap-2"
   >
     <div class="border-2 rounded-2 overflow-hidden">
-      <textarea
-        class="w-full h-full outline-none p-2 resize-none"
+      <codemirror
         v-model="svg"
-        placeholder="Paste your svg here to preview"
-      ></textarea>
+        placeholder="Paste your SVG here..."
+        :style="{ height: '100%' }"
+        class=""
+        :autofocus="true"
+        :indent-with-tab="true"
+        :tab-size="2"
+        :extensions="extensions"
+        @change="handleChange"
+      />
     </div>
     <!-- :style="{
       borderColor: borderColor,
@@ -50,10 +65,15 @@ const color = ref(colors[0]);
         <div
           v-for="(bgColor, idx) in colors"
           :style="{ backgroundColor: bgColor }"
-          class="w-8 h-8 rounded-1 cursor-pointer"
+          class="w-8 h-8 rounded-1 cursor-pointer flex items-center justify-center"
           :key="idx"
           @click="color = bgColor"
-        ></div>
+        >
+          <span
+            class="i-carbon-checkmark text-xl"
+            :class="color === bgColor ? 'text-white' : 'text-white/0'"
+          ></span>
+        </div>
       </div>
     </div>
   </div>
