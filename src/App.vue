@@ -5,6 +5,8 @@ import { html } from "@codemirror/lang-html";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { useDebounceFn } from "@vueuse/core";
 
+import Toolbar from "@/components/Toolbar.vue";
+
 const extensions = [html(), oneDark];
 
 const colors = [
@@ -33,20 +35,25 @@ watch(color, colorChange);
 
 <template>
   <div
-    class="p-2 h-screen grid grid-cols-1 grid-rows-2 md:grid-rows-1 md:grid-cols-2 gap-2"
+    class="p-2 h-screen grid grid-cols-1 grid-rows-2 md:grid-rows-1 md:grid-cols-2 gap-2 font-sans"
   >
-    <div class="border-2 rounded-2 overflow-hidden">
-      <codemirror
-        v-model="svg"
-        placeholder="Paste your SVG here..."
-        :style="{ height: '100%' }"
-        class=""
-        :autofocus="true"
-        :indent-with-tab="true"
-        :tab-size="2"
-        :extensions="extensions"
-        @change="handleChange"
-      />
+    <div
+      class="border-2 rounded-2 overflow-hidden flex flex-col justify-between gap-1"
+    >
+      <Toolbar v-model="svg" />
+      <div class="h-full rounded-2 overflow-hidden">
+        <codemirror
+          v-model="svg"
+          placeholder="Paste your SVG here..."
+          :style="{ height: '100%' }"
+          class=""
+          :autofocus="true"
+          :indent-with-tab="true"
+          :tab-size="2"
+          :extensions="extensions"
+          @change="handleChange"
+        />
+      </div>
     </div>
     <!-- :style="{
       borderColor: borderColor,
@@ -73,6 +80,23 @@ watch(color, colorChange);
             class="i-carbon-checkmark text-xl"
             :class="color === bgColor ? 'text-white' : 'text-white/0'"
           ></span>
+        </div>
+        <div
+          class="w-8 h-8 rounded-1 cursor-pointer flex items-center justify-center overflow-hidden relative"
+        >
+          <input
+            type="color"
+            class="w-0 h-0"
+            id="color-input"
+            v-model="color"
+          />
+          <label
+            for="color-input"
+            :style="{ backgroundColor: color }"
+            class="block w-full h-full flex items-center justify-center cursor-pointer"
+          >
+            <span class="i-carbon-paint-brush text-white text-xl"></span>
+          </label>
         </div>
       </div>
     </div>
